@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Confidence" />
+  <meta name="theme-color" content="#0e1a0c" />
+  <title>Daily Confidence</title>
+
+
+  <style>
+    :root {
+      --bg:           #0e1a0c;
+      --gold:         #e8c068;
+      --gold-light:   #f5d98a;
+      --surface:      rgba(255,255,240,0.07);
+      --border:       rgba(200,230,160,0.15);
+      --border-hi:    rgba(200,230,160,0.32);
+      --text:         #eef5e8;
+      --text-muted:   rgba(220,240,200,0.72);
+      --text-dim:     rgba(220,240,200,0.38);
+      --checked-bg:   rgba(130,195,75,0.13);
+      --checked-bdr:  rgba(140,205,85,0.48);
+      --green:        #7ec856;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { background: var(--bg); }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Rich dark-forest background */
+    .bg-layer {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 75% 50% at 5% 5%,   rgba(55,95,25,0.6)  0%, transparent 60%),
+        radial-gradient(ellipse 60% 55% at 95% 95%,  rgba(40,80,18,0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 40% at 50% 50%,  rgba(18,35,8,0.45)  0%, transparent 70%),
+        linear-gradient(155deg, #091507 0%, #0e1a0c 45%, #101c0e 100%);
+    }
+
+    /* Warm amber glow at the bottom */
+    .bg-glow {
+      position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+      width: 380px; height: 280px;
+      background: radial-gradient(ellipse, rgba(150,90,15,0.2) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Plant layer */
+    .plants { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+
+    /* Page */
+    .page {
+      position: relative; z-index: 2;
+      max-width: 520px; margin: 0 auto;
+      padding: max(env(safe-area-inset-top), 52px) 22px
+               calc(env(safe-area-inset-bottom, 0px) + 64px);
+    }
+
+    /* Header */
+    .date-label {
+      font-size: 11px; font-weight: 400; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--green);
+      opacity: 0.9; margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: Georgia, Palatino, 'Times New Roman', serif;
+      font-size: clamp(40px, 10vw, 52px); font-weight: 700;
+      line-height: 1.06; color: var(--text); margin-bottom: 8px;
+    }
+
+    h1 em { font-style: italic; color: var(--gold-light); }
+
+    .subtitle {
+      font-size: 14px; font-weight: 400;
+      color: var(--text-muted); margin-bottom: 34px;
+    }
+
+    /* Stats */
+    .stats-row { display: flex; gap: 12px; margin-bottom: 26px; }
+
+    .stat-pill {
+      flex: 1; text-align: center;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 14px 10px 12px;
+    }
+
+    .stat-value {
+      display: block;
+      font-family: Georgia, Palatino, 'Times New Roman', serif;
+      font-size: 26px; font-weight: 700;
+      color: var(--gold); line-height: 1; margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 10px; font-weight: 400;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Progress bar */
+    .progress-section { margin-bottom: 28px; }
+
+    .progress-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 8px;
+    }
+
+    .progress-header span {
+      font-size: 11px; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+
+    .progress-pct { color: var(--gold) !important; font-weight: 500; }
+
+    .progress-track {
+      height: 6px; background: rgba(255,255,255,0.08);
+      border-radius: 4px; overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      transition: width 0.55s cubic-bezier(0.34,1.56,0.64,1);
+      width: 0%;
+    }
+
+    /* Habit cards */
+    .habits-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+
+    .habit-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 16px; cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.12s;
+      -webkit-user-select: none; user-select: none;
+    }
+
+    .habit-card:active { transform: scale(0.975); }
+
+    .habit-card.checked {
+      background: var(--checked-bg); border-color: var(--checked-bdr);
+    }
+
+    .habit-icon { font-size: 22px; flex-shrink: 0; }
+    .habit-text { flex: 1; min-width: 0; }
+
+    .habit-title {
+      font-size: 15px; font-weight: 500; color: var(--text);
+      line-height: 1.3; margin-bottom: 3px; transition: color 0.2s;
+    }
+
+    .habit-card.checked .habit-title {
+      color: var(--gold-light);
+      text-decoration: line-through;
+      text-decoration-color: rgba(232,192,104,0.45);
+    }
+
+    .habit-desc {
+      font-size: 13px; font-weight: 400;
+      color: var(--text-muted); line-height: 1.45;
+    }
+
+    .check-ring {
+      width: 27px; height: 27px; border-radius: 50%;
+      border: 2px solid rgba(200,230,160,0.28); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      font-size: 14px; color: transparent;
+    }
+
+    .habit-card.checked .check-ring {
+      background: var(--green); border-color: var(--green); color: #091507;
+    }
+
+    /* Wins journal */
+    .section-title {
+      font-family: Georgia, Palatino, 'Times New Roman', serif;
+      font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 5px;
+    }
+
+    .section-desc {
+      font-size: 13px; font-weight: 400;
+      color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;
+    }
+
+    .wins-input {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 16px; color: var(--text);
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px; font-weight: 400; line-height: 1.6;
+      resize: none; outline: none; -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+
+    .wins-input::placeholder { color: var(--text-dim); }
+    .wins-input:focus { border-color: var(--border-hi); }
+
+    .save-row { display: flex; justify-content: flex-end; margin-top: 10px; margin-bottom: 32px; }
+
+    .save-btn {
+      background: var(--green); color: #091507; border: none;
+      border-radius: 10px; padding: 11px 26px;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: background 0.2s, transform 0.12s; -webkit-appearance: none;
+    }
+
+    .save-btn:active { transform: scale(0.96); }
+    .save-btn.saved { background: var(--gold); }
+
+    /* Complete banner */
+    .complete-banner {
+      display: none; background: rgba(126,200,86,0.1);
+      border: 1px solid rgba(126,200,86,0.28);
+      border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 28px;
+    }
+
+    .complete-banner.visible { display: block; }
+
+    .complete-title {
+      font-family: Georgia, Palatino, 'Times New Roman', serif;
+      font-size: 22px; color: var(--gold-light); margin-bottom: 6px;
+    }
+
+    .complete-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* History */
+    .history-section { margin-bottom: 40px; }
+
+    .history-toggle {
+      background: none; border: 1px solid var(--border); border-radius: 12px;
+      padding: 11px 16px; color: var(--text-muted);
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px; cursor: pointer; width: 100%;
+      text-align: center; -webkit-appearance: none;
+    }
+
+    .history-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    .history-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+    }
+
+    .history-date {
+      font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 7px;
+    }
+
+    .history-dots { display: flex; gap: 5px; margin-bottom: 8px; }
+
+    .history-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.1); }
+    .history-dot.done { background: var(--green); }
+
+    .history-wins {
+      font-size: 13px; color: var(--text-muted); line-height: 1.5; white-space: pre-wrap;
+    }
+
+    .footer-note {
+      font-size: 11px; color: var(--text-dim);
+      text-align: center; letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes sway     { 0%,100%{transform:rotate(0deg)}         50%{transform:rotate(3.5deg)} }
+    @keyframes swayL    { 0%,100%{transform:scaleX(-1) rotate(0deg)} 50%{transform:scaleX(-1) rotate(3.5deg)} }
+    @keyframes swayHang { 0%,100%{transform:rotate(0deg)}         50%{transform:rotate(2.5deg)} }
+
+    .page > * { animation: fadeUp 0.42s ease both; }
+    .habits-list .habit-card:nth-child(1){animation-delay:.04s}
+    .habits-list .habit-card:nth-child(2){animation-delay:.08s}
+    .habits-list .habit-card:nth-child(3){animation-delay:.12s}
+    .habits-list .habit-card:nth-child(4){animation-delay:.16s}
+    .habits-list .habit-card:nth-child(5){animation-delay:.20s}
+    .habits-list .habit-card:nth-child(6){animation-delay:.24s}
+    .habits-list .habit-card:nth-child(7){animation-delay:.28s}
+
+    .p-bl { transform-origin: bottom left;  animation: sway     7s ease-in-out infinite; }
+    .p-br { transform-origin: bottom right; animation: swayL    8.5s ease-in-out infinite; animation-delay:-3s; }
+    .p-tr { transform-origin: top right;    animation: swayHang 9s ease-in-out infinite; animation-delay:-1.5s; }
+    .p-tl { transform-origin: top left;     animation: swayHang 6.5s ease-in-out infinite; animation-delay:-4s; }
+  </style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="bg-glow"></div>
+
+<!-- Plants -->
+<div class="plants" aria-hidden="true">
+
+  <!-- Bottom-left: large monstera leaves -->
+  <svg class="p-bl" style="position:fixed;bottom:-24px;left:-28px;width:230px;opacity:0.58;"
+       viewBox="0 0 230 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M65 290 Q68 210 82 165 Q96 125 112 95" stroke="#2d5a1b" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <!-- big lower leaf -->
+    <path d="M82 165 Q28 115 8 58 Q38 50 68 76 Q90 102 82 165Z" fill="#1e4a12"/>
+    <path d="M82 165 Q28 115 8 58" stroke="#3a7020" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <!-- leaf splits -->
+    <path d="M34 76 Q28 58 15 62" stroke="#091507" stroke-width="3.5" fill="none"/>
+    <path d="M50 100 Q44 82 36 86" stroke="#091507" stroke-width="3.5" fill="none"/>
+    <!-- vein lines -->
+    <path d="M82 165 Q52 132 26 88" stroke="#3a7020" stroke-width="1" fill="none" opacity="0.35"/>
+    <!-- upper leaf -->
+    <path d="M96 125 Q152 82 182 28 Q156 18 126 40 Q100 68 96 125Z" fill="#1a4210" opacity="0.9"/>
+    <path d="M96 125 Q152 82 182 28" stroke="#3a7020" stroke-width="1.2" fill="none" opacity="0.45"/>
+    <!-- small tip -->
+    <path d="M112 95 Q142 62 158 36 Q136 28 116 52 Q106 72 112 95Z" fill="#22501a" opacity="0.75"/>
+  </svg>
+
+  <!-- Bottom-right: tall tropical -->
+  <svg class="p-br" style="position:fixed;bottom:-14px;right:-22px;width:210px;opacity:0.52;transform:scaleX(-1);"
+       viewBox="0 0 210 310" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M82 310 Q80 228 88 174 Q95 132 104 104" stroke="#2a5518" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M88 174 Q22 136 5 70 Q36 60 64 88 Q82 116 88 174Z" fill="#1c4810" opacity="0.9"/>
+    <path d="M88 174 Q22 136 5 70" stroke="#326018" stroke-width="1.2" fill="none" opacity="0.45"/>
+    <path d="M26 80 Q20 62 10 70" stroke="#091507" stroke-width="3" fill="none"/>
+    <path d="M46 104 Q40 86 32 90" stroke="#091507" stroke-width="3" fill="none"/>
+    <path d="M104 104 Q160 62 178 14 Q152 6 124 30 Q104 60 104 104Z" fill="#1a4410" opacity="0.85"/>
+    <path d="M104 104 Q160 62 178 14" stroke="#2d6018" stroke-width="1.2" fill="none" opacity="0.4"/>
+    <path d="M95 140 Q144 102 162 56 Q140 48 118 74 Q98 102 95 140Z" fill="#224e12" opacity="0.68"/>
+  </svg>
+
+  <!-- Top-right: hanging vines -->
+  <svg class="p-tr" style="position:fixed;top:-8px;right:-8px;width:185px;opacity:0.46;"
+       viewBox="0 0 185 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M175 0 Q168 45 156 78 Q144 108 130 140 Q118 165 104 192" stroke="#285a18" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M152 0 Q148 32 140 58 Q130 84 118 110" stroke="#285a18" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <!-- leaves -->
+    <path d="M156 78 Q122 64 114 42 Q132 32 150 50 Q160 66 156 78Z" fill="#1e4a12" opacity="0.88"/>
+    <path d="M130 140 Q96 130 90 106 Q110 94 128 114 Q134 128 130 140Z" fill="#1c4810" opacity="0.82"/>
+    <path d="M140 58 Q116 46 110 28 Q128 18 140 38 Q144 50 140 58Z" fill="#1a4210" opacity="0.72"/>
+    <path d="M118 110 Q94 100 88 80 Q108 70 120 90 Q122 102 118 110Z" fill="#1e4e14" opacity="0.68"/>
+    <path d="M104 192 Q74 185 70 162 Q92 152 106 172 Q110 184 104 192Z" fill="#1c4810" opacity="0.62"/>
+  </svg>
+
+  <!-- Top-left: small sprigs -->
+  <svg class="p-tl" style="position:fixed;top:-4px;left:-4px;width:135px;opacity:0.42;"
+       viewBox="0 0 135 165" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22 0 Q30 36 42 68 Q52 94 60 118" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M42 68 Q74 50 84 24 Q64 14 48 34 Q42 52 42 68Z" fill="#1e4a12" opacity="0.84"/>
+    <path d="M42 68 Q74 50 84 24" stroke="#306018" stroke-width="1" fill="none" opacity="0.42"/>
+    <path d="M60 118 Q88 104 94 80 Q76 68 60 88 Q56 104 60 118Z" fill="#1c4810" opacity="0.78"/>
+    <path d="M28 34 Q5 28 2 10 Q18 4 28 22 Q31 30 28 34Z" fill="#1a4010" opacity="0.68"/>
+  </svg>
+
+  <!-- Mid-left: small accent leaf -->
+  <svg style="position:fixed;top:42%;left:-16px;width:90px;opacity:0.3;transform-origin:left center;"
+       class="p-bl" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 140 Q35 100 45 70 Q55 45 65 20" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M45 70 Q10 55 5 28 Q28 18 44 42 Q48 58 45 70Z" fill="#1c4810" opacity="0.85"/>
+    <path d="M65 20 Q82 8 88 0 Q72 -2 62 14 Q62 18 65 20Z" fill="#1a4010" opacity="0.65"/>
+  </svg>
+
+</div>
+
+<!-- App -->
+<div class="page">
+
+  <p class="date-label" id="dateLabel"></p>
+  <h1>Daily<br><em>Confidence</em></h1>
+  <p class="subtitle">Seven practices. Every day. Compounding.</p>
+
+  <div class="stats-row">
+    <div class="stat-pill">
+      <span class="stat-value" id="statToday">0/7</span>
+      <span class="stat-label">Today</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-value" id="statStreak">0 🔥</span>
+      <span class="stat-label">Streak</span>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span>Daily Progress</span>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="habits-list" id="habitsList"></div>
+
+  <div class="complete-banner" id="completeBanner">
+    <p class="complete-title">Complete ✦</p>
+    <p class="complete-sub">Every habit checked. Today is proof you show up for yourself.</p>
+  </div>
+
+  <p class="section-title">✨ Today's Wins</p>
+  <p class="section-desc">What did you handle well today? No matter how small.</p>
+  <textarea class="wins-input" id="winsInput" rows="4"
+    placeholder="1. I spoke up when I usually wouldn't...&#10;2. I went for a walk even when tired...&#10;3. I caught myself comparing and refocused..."></textarea>
+  <div class="save-row">
+    <button class="save-btn" id="saveBtn" onclick="saveWins()">Save Wins</button>
+  </div>
+
+  <div class="history-section">
+    <button class="history-toggle" onclick="toggleHistory()">📅 View Past Days</button>
+    <div class="history-list" id="historyList" style="display:none;"></div>
+  </div>
+
+  <p class="footer-note">Saved privately on this device</p>
+</div>
+
+<script>
+  const HABITS = [
+    { id:"uncomfortable", icon:"🔥", title:"Do One Uncomfortable Thing",  desc:"Speak up, try something new, or push a boundary — however small." },
+    { id:"commitments",   icon:"🤝", title:"Keep a Promise to Yourself",  desc:"Follow through on one thing you said you'd do today." },
+    { id:"wins",          icon:"✨", title:"Log Your Wins",               desc:"Write 1–3 things you handled well today." },
+    { id:"body",          icon:"🌿", title:"Move Your Body",              desc:"A walk, stretch, workout — check your posture right now." },
+    { id:"comparison",    icon:"🛡️",  title:"Limit Comparison",            desc:"Catch yourself comparing and redirect focus inward." },
+    { id:"prepare",       icon:"📖", title:"Prepare for Something",       desc:"Spend time getting ready for a challenge ahead." },
+    { id:"selftalk",      icon:"💬", title:"Mentor Self-Talk",            desc:"Reframe one harsh inner thought into honest encouragement." },
+  ];
+
+  const KEY = "confidence_tracker_v1";
+
+  function load() {
+    try { const r=localStorage.getItem(KEY); return r?JSON.parse(r):{history:{}}; }
+    catch { return {history:{}}; }
+  }
+  function persist(d) { try{localStorage.setItem(KEY,JSON.stringify(d));}catch{} }
+  function todayKey() { return new Date().toISOString().split("T")[0]; }
+  function fmtDate(k) {
+    const [y,m,d]=k.split("-");
+    return new Date(+y,+m-1,+d).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  }
+  function getStreak(h) {
+    let s=0; const d=new Date();
+    while(true){
+      const k=d.toISOString().split("T")[0]; const day=h[k];
+      if(!day||!Object.values(day.habits||{}).some(Boolean)) break;
+      s++; d.setDate(d.getDate()-1);
+    }
+    return s;
+  }
+
+  let app = load();
+
+  function today() {
+    const k=todayKey();
+    if(!app.history[k]) app.history[k]={habits:{},wins:""};
+    return app.history[k];
+  }
+
+  function render() {
+    document.getElementById("dateLabel").textContent =
+      new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+
+    const td=today();
+    const n=Object.values(td.habits).filter(Boolean).length;
+    const pct=Math.round(n/HABITS.length*100);
+
+    document.getElementById("statToday").textContent=`${n}/${HABITS.length}`;
+    document.getElementById("statStreak").textContent=`${getStreak(app.history)} 🔥`;
+    document.getElementById("progressPct").textContent=`${pct}%`;
+    document.getElementById("progressFill").style.width=`${pct}%`;
+    document.getElementById("completeBanner").classList.toggle("visible",n===HABITS.length);
+
+    const list=document.getElementById("habitsList"); list.innerHTML="";
+    HABITS.forEach(h=>{
+      const ok=!!td.habits[h.id];
+      const c=document.createElement("div");
+      c.className=`habit-card${ok?" checked":""}`;
+      c.innerHTML=`<span class="habit-icon">${h.icon}</span>
+        <div class="habit-text"><p class="habit-title">${h.title}</p><p class="habit-desc">${h.desc}</p></div>
+        <div class="check-ring">${ok?"✓":""}</div>`;
+      c.addEventListener("click",()=>{ td.habits[h.id]=!td.habits[h.id]; persist(app); render(); });
+      list.appendChild(c);
+    });
+
+    document.getElementById("winsInput").value=td.wins||"";
+  }
+
+  function saveWins(){
+    today().wins=document.getElementById("winsInput").value;
+    persist(app);
+    const b=document.getElementById("saveBtn");
+    b.textContent="✓ Saved"; b.classList.add("saved");
+    setTimeout(()=>{b.textContent="Save Wins";b.classList.remove("saved");},2000);
+  }
+
+  let histOpen=false;
+  function toggleHistory(){
+    histOpen=!histOpen;
+    const el=document.getElementById("historyList");
+    el.style.display=histOpen?"flex":"none";
+    if(!histOpen) return;
+    el.innerHTML="";
+    const keys=Object.keys(app.history).sort().reverse().slice(1,15);
+    if(!keys.length){ el.innerHTML=`<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:10px 0">No past days yet!</p>`; return; }
+    keys.forEach(k=>{
+      const day=app.history[k];
+      const dots=HABITS.map(h=>`<div class="history-dot${day?.habits?.[h.id]?" done":""}"></div>`).join("");
+      const item=document.createElement("div"); item.className="history-item";
+      item.innerHTML=`<p class="history-date">${fmtDate(k)}</p><div class="history-dots">${dots}</div>${day?.wins?`<p class="history-wins">${day.wins}</p>`:""}`;
+      el.appendChild(item);
+    });
+  }
+
+  render();
+
+  // Register service worker for offline support
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
+</script>
+</body>
+</html>
