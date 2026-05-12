@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +9,6 @@
   <meta name="apple-mobile-web-app-title" content="Confidence" />
   <meta name="theme-color" content="#0e1a0c" />
   <title>Daily Confidence</title>
-
 
   <style>
     :root {
@@ -236,7 +236,25 @@
     .complete-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 
     /* History */
-    .history-section { margin-bottom: 40px; }
+    .history-section { margin-bottom: 24px; }
+
+    .backup-section { margin-bottom: 40px; }
+    .backup-panel { margin-top: 12px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .backup-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+    .backup-buttons { display: flex; gap: 8px; margin-top: 10px; }
+    .backup-btn {
+      flex: 1; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border-hi); border-radius: 10px;
+      padding: 10px; font-family: inherit; font-size: 13px;
+      font-weight: 500; cursor: pointer; -webkit-appearance: none;
+      transition: background 0.2s;
+    }
+    .backup-btn:active { background: rgba(255,255,255,0.1); }
+    .backup-status {
+      font-size: 12px; color: var(--green); text-align: center;
+      margin-top: 10px; min-height: 16px;
+    }
+    .backup-status.error { color: #e88060; }
 
     .history-toggle {
       background: none; border: 1px solid var(--border); border-radius: 12px;
@@ -295,6 +313,7 @@
     .p-tr { transform-origin: top right;    animation: swayHang 9s ease-in-out infinite; animation-delay:-1.5s; }
     .p-tl { transform-origin: top left;     animation: swayHang 6.5s ease-in-out infinite; animation-delay:-4s; }
   </style>
+
 </head>
 <body>
 
@@ -302,74 +321,81 @@
 <div class="bg-glow"></div>
 
 <!-- Plants -->
+
 <div class="plants" aria-hidden="true">
 
   <!-- Bottom-left: large monstera leaves -->
-  <svg class="p-bl" style="position:fixed;bottom:-24px;left:-28px;width:230px;opacity:0.58;"
-       viewBox="0 0 230 290" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M65 290 Q68 210 82 165 Q96 125 112 95" stroke="#2d5a1b" stroke-width="4" stroke-linecap="round" fill="none"/>
-    <!-- big lower leaf -->
-    <path d="M82 165 Q28 115 8 58 Q38 50 68 76 Q90 102 82 165Z" fill="#1e4a12"/>
-    <path d="M82 165 Q28 115 8 58" stroke="#3a7020" stroke-width="1.5" fill="none" opacity="0.5"/>
-    <!-- leaf splits -->
-    <path d="M34 76 Q28 58 15 62" stroke="#091507" stroke-width="3.5" fill="none"/>
-    <path d="M50 100 Q44 82 36 86" stroke="#091507" stroke-width="3.5" fill="none"/>
-    <!-- vein lines -->
-    <path d="M82 165 Q52 132 26 88" stroke="#3a7020" stroke-width="1" fill="none" opacity="0.35"/>
-    <!-- upper leaf -->
-    <path d="M96 125 Q152 82 182 28 Q156 18 126 40 Q100 68 96 125Z" fill="#1a4210" opacity="0.9"/>
-    <path d="M96 125 Q152 82 182 28" stroke="#3a7020" stroke-width="1.2" fill="none" opacity="0.45"/>
-    <!-- small tip -->
-    <path d="M112 95 Q142 62 158 36 Q136 28 116 52 Q106 72 112 95Z" fill="#22501a" opacity="0.75"/>
-  </svg>
+
+<svg class="p-bl" style="position:fixed;bottom:-24px;left:-28px;width:230px;opacity:0.58;"
+viewBox="0 0 230 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M65 290 Q68 210 82 165 Q96 125 112 95" stroke="#2d5a1b" stroke-width="4" stroke-linecap="round" fill="none"/>
+<!-- big lower leaf -->
+<path d="M82 165 Q28 115 8 58 Q38 50 68 76 Q90 102 82 165Z" fill="#1e4a12"/>
+<path d="M82 165 Q28 115 8 58" stroke="#3a7020" stroke-width="1.5" fill="none" opacity="0.5"/>
+<!-- leaf splits -->
+<path d="M34 76 Q28 58 15 62" stroke="#091507" stroke-width="3.5" fill="none"/>
+<path d="M50 100 Q44 82 36 86" stroke="#091507" stroke-width="3.5" fill="none"/>
+<!-- vein lines -->
+<path d="M82 165 Q52 132 26 88" stroke="#3a7020" stroke-width="1" fill="none" opacity="0.35"/>
+<!-- upper leaf -->
+<path d="M96 125 Q152 82 182 28 Q156 18 126 40 Q100 68 96 125Z" fill="#1a4210" opacity="0.9"/>
+<path d="M96 125 Q152 82 182 28" stroke="#3a7020" stroke-width="1.2" fill="none" opacity="0.45"/>
+<!-- small tip -->
+<path d="M112 95 Q142 62 158 36 Q136 28 116 52 Q106 72 112 95Z" fill="#22501a" opacity="0.75"/>
+</svg>
 
   <!-- Bottom-right: tall tropical -->
-  <svg class="p-br" style="position:fixed;bottom:-14px;right:-22px;width:210px;opacity:0.52;transform:scaleX(-1);"
-       viewBox="0 0 210 310" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M82 310 Q80 228 88 174 Q95 132 104 104" stroke="#2a5518" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-    <path d="M88 174 Q22 136 5 70 Q36 60 64 88 Q82 116 88 174Z" fill="#1c4810" opacity="0.9"/>
-    <path d="M88 174 Q22 136 5 70" stroke="#326018" stroke-width="1.2" fill="none" opacity="0.45"/>
-    <path d="M26 80 Q20 62 10 70" stroke="#091507" stroke-width="3" fill="none"/>
-    <path d="M46 104 Q40 86 32 90" stroke="#091507" stroke-width="3" fill="none"/>
-    <path d="M104 104 Q160 62 178 14 Q152 6 124 30 Q104 60 104 104Z" fill="#1a4410" opacity="0.85"/>
-    <path d="M104 104 Q160 62 178 14" stroke="#2d6018" stroke-width="1.2" fill="none" opacity="0.4"/>
-    <path d="M95 140 Q144 102 162 56 Q140 48 118 74 Q98 102 95 140Z" fill="#224e12" opacity="0.68"/>
-  </svg>
+
+<svg class="p-br" style="position:fixed;bottom:-14px;right:-22px;width:210px;opacity:0.52;transform:scaleX(-1);"
+viewBox="0 0 210 310" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M82 310 Q80 228 88 174 Q95 132 104 104" stroke="#2a5518" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<path d="M88 174 Q22 136 5 70 Q36 60 64 88 Q82 116 88 174Z" fill="#1c4810" opacity="0.9"/>
+<path d="M88 174 Q22 136 5 70" stroke="#326018" stroke-width="1.2" fill="none" opacity="0.45"/>
+<path d="M26 80 Q20 62 10 70" stroke="#091507" stroke-width="3" fill="none"/>
+<path d="M46 104 Q40 86 32 90" stroke="#091507" stroke-width="3" fill="none"/>
+<path d="M104 104 Q160 62 178 14 Q152 6 124 30 Q104 60 104 104Z" fill="#1a4410" opacity="0.85"/>
+<path d="M104 104 Q160 62 178 14" stroke="#2d6018" stroke-width="1.2" fill="none" opacity="0.4"/>
+<path d="M95 140 Q144 102 162 56 Q140 48 118 74 Q98 102 95 140Z" fill="#224e12" opacity="0.68"/>
+</svg>
 
   <!-- Top-right: hanging vines -->
-  <svg class="p-tr" style="position:fixed;top:-8px;right:-8px;width:185px;opacity:0.46;"
-       viewBox="0 0 185 230" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M175 0 Q168 45 156 78 Q144 108 130 140 Q118 165 104 192" stroke="#285a18" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M152 0 Q148 32 140 58 Q130 84 118 110" stroke="#285a18" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    <!-- leaves -->
-    <path d="M156 78 Q122 64 114 42 Q132 32 150 50 Q160 66 156 78Z" fill="#1e4a12" opacity="0.88"/>
-    <path d="M130 140 Q96 130 90 106 Q110 94 128 114 Q134 128 130 140Z" fill="#1c4810" opacity="0.82"/>
-    <path d="M140 58 Q116 46 110 28 Q128 18 140 38 Q144 50 140 58Z" fill="#1a4210" opacity="0.72"/>
-    <path d="M118 110 Q94 100 88 80 Q108 70 120 90 Q122 102 118 110Z" fill="#1e4e14" opacity="0.68"/>
-    <path d="M104 192 Q74 185 70 162 Q92 152 106 172 Q110 184 104 192Z" fill="#1c4810" opacity="0.62"/>
-  </svg>
+
+<svg class="p-tr" style="position:fixed;top:-8px;right:-8px;width:185px;opacity:0.46;"
+viewBox="0 0 185 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M175 0 Q168 45 156 78 Q144 108 130 140 Q118 165 104 192" stroke="#285a18" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M152 0 Q148 32 140 58 Q130 84 118 110" stroke="#285a18" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+<!-- leaves -->
+<path d="M156 78 Q122 64 114 42 Q132 32 150 50 Q160 66 156 78Z" fill="#1e4a12" opacity="0.88"/>
+<path d="M130 140 Q96 130 90 106 Q110 94 128 114 Q134 128 130 140Z" fill="#1c4810" opacity="0.82"/>
+<path d="M140 58 Q116 46 110 28 Q128 18 140 38 Q144 50 140 58Z" fill="#1a4210" opacity="0.72"/>
+<path d="M118 110 Q94 100 88 80 Q108 70 120 90 Q122 102 118 110Z" fill="#1e4e14" opacity="0.68"/>
+<path d="M104 192 Q74 185 70 162 Q92 152 106 172 Q110 184 104 192Z" fill="#1c4810" opacity="0.62"/>
+</svg>
 
   <!-- Top-left: small sprigs -->
-  <svg class="p-tl" style="position:fixed;top:-4px;left:-4px;width:135px;opacity:0.42;"
-       viewBox="0 0 135 165" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22 0 Q30 36 42 68 Q52 94 60 118" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M42 68 Q74 50 84 24 Q64 14 48 34 Q42 52 42 68Z" fill="#1e4a12" opacity="0.84"/>
-    <path d="M42 68 Q74 50 84 24" stroke="#306018" stroke-width="1" fill="none" opacity="0.42"/>
-    <path d="M60 118 Q88 104 94 80 Q76 68 60 88 Q56 104 60 118Z" fill="#1c4810" opacity="0.78"/>
-    <path d="M28 34 Q5 28 2 10 Q18 4 28 22 Q31 30 28 34Z" fill="#1a4010" opacity="0.68"/>
-  </svg>
+
+<svg class="p-tl" style="position:fixed;top:-4px;left:-4px;width:135px;opacity:0.42;"
+viewBox="0 0 135 165" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22 0 Q30 36 42 68 Q52 94 60 118" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M42 68 Q74 50 84 24 Q64 14 48 34 Q42 52 42 68Z" fill="#1e4a12" opacity="0.84"/>
+<path d="M42 68 Q74 50 84 24" stroke="#306018" stroke-width="1" fill="none" opacity="0.42"/>
+<path d="M60 118 Q88 104 94 80 Q76 68 60 88 Q56 104 60 118Z" fill="#1c4810" opacity="0.78"/>
+<path d="M28 34 Q5 28 2 10 Q18 4 28 22 Q31 30 28 34Z" fill="#1a4010" opacity="0.68"/>
+</svg>
 
   <!-- Mid-left: small accent leaf -->
-  <svg style="position:fixed;top:42%;left:-16px;width:90px;opacity:0.3;transform-origin:left center;"
-       class="p-bl" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M30 140 Q35 100 45 70 Q55 45 65 20" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M45 70 Q10 55 5 28 Q28 18 44 42 Q48 58 45 70Z" fill="#1c4810" opacity="0.85"/>
-    <path d="M65 20 Q82 8 88 0 Q72 -2 62 14 Q62 18 65 20Z" fill="#1a4010" opacity="0.65"/>
-  </svg>
+
+<svg style="position:fixed;top:42%;left:-16px;width:90px;opacity:0.3;transform-origin:left center;"
+class="p-bl" viewBox="0 0 90 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M30 140 Q35 100 45 70 Q55 45 65 20" stroke="#285516" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M45 70 Q10 55 5 28 Q28 18 44 42 Q48 58 45 70Z" fill="#1c4810" opacity="0.85"/>
+<path d="M65 20 Q82 8 88 0 Q72 -2 62 14 Q62 18 65 20Z" fill="#1a4010" opacity="0.65"/>
+</svg>
 
 </div>
 
 <!-- App -->
+
 <div class="page">
 
   <p class="date-label" id="dateLabel"></p>
@@ -417,6 +443,19 @@
     <div class="history-list" id="historyList" style="display:none;"></div>
   </div>
 
+  <div class="backup-section">
+    <button class="history-toggle" onclick="toggleBackup()">💾 Backup &amp; Restore</button>
+    <div class="backup-panel" id="backupPanel" style="display:none;">
+      <p class="backup-desc">Copy your data to keep a backup, or paste a backup to restore on a new phone.</p>
+      <textarea class="wins-input" id="backupBox" rows="5" placeholder="Your data will appear here when you tap Export, or paste a backup here to restore."></textarea>
+      <div class="backup-buttons">
+        <button class="backup-btn" onclick="exportData()">⬆ Export</button>
+        <button class="backup-btn" onclick="importData()">⬇ Restore</button>
+      </div>
+      <p class="backup-status" id="backupStatus"></p>
+    </div>
+  </div>
+
   <p class="footer-note">Saved privately on this device</p>
 </div>
 
@@ -438,7 +477,21 @@
     catch { return {history:{}}; }
   }
   function persist(d) { try{localStorage.setItem(KEY,JSON.stringify(d));}catch{} }
-  function todayKey() { return new Date().toISOString().split("T")[0]; }
+  function todayKey() {
+    // Use LOCAL date so the day resets at local midnight, not UTC midnight
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function dateToKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
   function fmtDate(k) {
     const [y,m,d]=k.split("-");
     return new Date(+y,+m-1,+d).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
@@ -446,7 +499,7 @@
   function getStreak(h) {
     let s=0; const d=new Date();
     while(true){
-      const k=d.toISOString().split("T")[0]; const day=h[k];
+      const k=dateToKey(d); const day=h[k];
       if(!day||!Object.values(day.habits||{}).some(Boolean)) break;
       s++; d.setDate(d.getDate()-1);
     }
@@ -516,6 +569,49 @@
     });
   }
 
+  let backupOpen=false;
+  function toggleBackup(){
+    backupOpen=!backupOpen;
+    document.getElementById("backupPanel").style.display=backupOpen?"block":"none";
+  }
+
+  function showStatus(msg, isError) {
+    const el=document.getElementById("backupStatus");
+    el.textContent=msg;
+    el.classList.toggle("error", !!isError);
+    setTimeout(()=>{ el.textContent=""; el.classList.remove("error"); }, 4000);
+  }
+
+  function exportData(){
+    const text=JSON.stringify(app, null, 2);
+    document.getElementById("backupBox").value=text;
+    // Try to copy to clipboard too
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(
+        ()=>showStatus("✓ Copied to clipboard! Paste it somewhere safe."),
+        ()=>showStatus("✓ Exported below — long-press to copy.")
+      );
+    } else {
+      showStatus("✓ Exported below — long-press to copy.");
+    }
+  }
+
+  function importData(){
+    const text=document.getElementById("backupBox").value.trim();
+    if(!text){ showStatus("Paste your backup text first.", true); return; }
+    try {
+      const parsed=JSON.parse(text);
+      if(!parsed.history || typeof parsed.history!=="object") throw new Error("invalid format");
+      if(!confirm("This will replace all your current data. Continue?")) return;
+      app=parsed;
+      persist(app);
+      render();
+      showStatus("✓ Restored! Your data is back.");
+    } catch(e) {
+      showStatus("Couldn't read that backup — make sure you pasted the full text.", true);
+    }
+  }
+
   render();
 
   // Register service worker for offline support
@@ -526,5 +622,6 @@
     });
   }
 </script>
+
 </body>
 </html>
